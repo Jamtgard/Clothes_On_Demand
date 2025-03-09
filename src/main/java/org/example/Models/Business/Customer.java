@@ -1,15 +1,16 @@
-package org.example;
+package org.example.Models.Business;
 
 public class Customer {
+
+    private static int customerCounter = 1;
 
     private int id;
     private String name;
     private String address;
     private String mail;
 
-    public Customer() {}
-    public Customer(int id, String name, String address, String mail) {
-        this.id = id;
+    public Customer(String name, String address, String mail) {
+        this.id = customerCounter++;
         this.name = name;
         this.address = address;
         this.mail = mail;
