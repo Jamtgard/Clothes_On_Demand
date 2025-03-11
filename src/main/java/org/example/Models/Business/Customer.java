@@ -9,6 +9,7 @@ public class Customer {
     private String address;
     private String mail;
 
+    public Customer() {}
     public Customer(String name, String address, String mail) {
         this.id = customerCounter++;
         this.name = name;
