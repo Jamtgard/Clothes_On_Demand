@@ -3,14 +3,17 @@ package org.example.Models.Business;
 import org.example.Models.Clothing.Article;
 import org.example.Models.Builder.ArticleBuilder;
 import org.example.Models.Clothing.ArticleType;
-import org.example.Models.Command.AddFeatureCommand;
+import org.example.Models.Command.AddFeaturePipeline;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Order {
+
     private static int orderCounter = 1;
     private int id;
     private String customerName;
@@ -18,6 +21,8 @@ public class Order {
     private List<Article> finalizedArticles;
     private OrderStatus status;
     private PropertyChangeSupport support;
+
+    private Map<ArticleType, AddFeaturePipeline> pipelines = new HashMap<>();
 
     public Order() {
         this.selectedArticles = new ArrayList<>();
@@ -40,6 +45,7 @@ public class Order {
     }
 
     public void confirmOrder() {
+
         if (status == OrderStatus.CONFIRMED) {
             throw new IllegalStateException("Order " + id + " är redan bekräftad!");
         }
@@ -55,14 +61,18 @@ public class Order {
 
             support.firePropertyChange("builderCompleted", null, "Ett nytt plagg har byggts i order " + id);
 
-            AddFeatureCommand addFeature = new AddFeatureCommand(article[5], article[6]);
-            addFeature.execute(builtArticle);
+            AddFeaturePipeline pipeline = pipelines.get(ArticleType.valueOf(article[0]));
+
+            if (pipeline != null) {
+                builtArticle = pipeline.execute(builtArticle, new String[]{article[5], article[6]});
+                System.out.println(builtArticle = pipeline.execute(builtArticle, new String[]{article[5], article[6]}));
+            }
 
             support.firePropertyChange("commandExecuted", null, "Command-mönstret har körts för ett plagg i order " + id);
 
             finalizedArticles.add(builtArticle);
-        }
 
+        }
         this.status = OrderStatus.CONFIRMED;
         support.firePropertyChange("orderConfirmed", null, "Order " + id + " är nu färdig och redo för leverans!");
     }
@@ -74,4 +84,7 @@ public class Order {
     public List<Article> getFinalizedArticles() {
         return finalizedArticles;
     }
+
+    public void setPipelines(Map<ArticleType, AddFeaturePipeline> pipelines) {this.pipelines = pipelines;}
+
 }
